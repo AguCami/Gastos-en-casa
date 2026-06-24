@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const CATEGORIES = [
+export const CATEGORIES = [
   { id: 'comida', label: 'Comida', color: '#f97316', emoji: '🛒' },
   { id: 'servicios', label: 'Servicios', color: '#06b6d4', emoji: '💡' },
   { id: 'transporte', label: 'Transporte', color: '#8b5cf6', emoji: '🚗' },
@@ -12,46 +12,51 @@ const CATEGORIES = [
 ]
 
 function load(key, fallback) {
-  try {
-    const v = localStorage.getItem(key)
-    return v ? JSON.parse(v) : fallback
-  } catch { return fallback }
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback }
+  catch { return fallback }
 }
-
-function save(key, value) {
-  localStorage.setItem(key, JSON.stringify(value))
-}
+function save(key, value) { localStorage.setItem(key, JSON.stringify(value)) }
 
 export function useStore() {
-  const [members, setMembers] = useState(() => load('gc_members', ['Todos']))
-  const [expenses, setExpenses] = useState(() => load('gc_expenses', []))
+  const [members, setMembers] = useState(() => load('gc_members', []))
+  const [entries, setEntries] = useState(() => load('gc_entries', []))   // gastos + ingresos
+  const [budgets, setBudgets] = useState(() => load('gc_budgets', {}))   // { catId: amount }
 
   useEffect(() => { save('gc_members', members) }, [members])
-  useEffect(() => { save('gc_expenses', expenses) }, [expenses])
+  useEffect(() => { save('gc_entries', entries) }, [entries])
+  useEffect(() => { save('gc_budgets', budgets) }, [budgets])
 
+  // members helpers
   function addMember(name) {
     const n = name.trim()
     if (n && !members.includes(n)) setMembers(m => [...m, n])
   }
-
   function removeMember(name) {
-    if (name === 'Todos') return
     setMembers(m => m.filter(x => x !== name))
-    setExpenses(e => e.filter(x => x.member !== name))
+    setEntries(e => e.filter(x => x.member !== name))
   }
 
-  function addExpense(exp) {
-    const newExp = { ...exp, id: Date.now() + Math.random() }
-    setExpenses(e => [newExp, ...e])
+  // entries helpers
+  function addEntry(entry) {
+    setEntries(e => [{ ...entry, id: Date.now() + Math.random() }, ...e])
+  }
+  function removeEntry(id) { setEntries(e => e.filter(x => x.id !== id)) }
+  function editEntry(updated) { setEntries(e => e.map(x => x.id === updated.id ? updated : x)) }
+
+  // budgets helpers
+  function setBudget(catId, amount) {
+    setBudgets(b => ({ ...b, [catId]: amount }))
   }
 
-  function removeExpense(id) {
-    setExpenses(e => e.filter(x => x.id !== id))
-  }
+  // derived
+  const expenses = entries.filter(e => e.type === 'expense')
+  const incomes  = entries.filter(e => e.type === 'income')
 
-  function editExpense(updated) {
-    setExpenses(e => e.map(x => x.id === updated.id ? updated : x))
+  return {
+    members, expenses, incomes, entries, budgets,
+    addMember, removeMember,
+    addEntry, removeEntry, editEntry,
+    setBudget,
+    CATEGORIES,
   }
-
-  return { members, expenses, addMember, removeMember, addExpense, removeExpense, editExpense, CATEGORIES }
 }
