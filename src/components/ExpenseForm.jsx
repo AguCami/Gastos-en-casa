@@ -22,45 +22,61 @@ export default function ExpenseForm({ members, categories, onAdd, onClose, initi
   }
 
   return (
-    <div style={overlay}>
-      <div className="card" style={{ width: '100%', maxWidth: 460, position: 'relative' }}>
-        <h3 style={{ marginBottom: 20, fontWeight: 700 }}>{initial ? 'Editar gasto' : 'Nuevo gasto'}</h3>
+    <div style={overlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{
+        width: '100%',
+        maxWidth: 460,
+        background: 'rgba(20,30,60,0.65)',
+        backdropFilter: 'blur(48px) saturate(200%)',
+        WebkitBackdropFilter: 'blur(48px) saturate(200%)',
+        border: '1px solid rgba(255,255,255,0.2)',
+        borderRadius: 28,
+        padding: 28,
+        boxShadow: '0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25)',
+      }}>
+        {/* Handle bar */}
+        <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.25)', borderRadius: 2, margin: '0 auto 20px' }} />
+
+        <h3 style={{ fontWeight: 700, fontSize: 20, marginBottom: 22, letterSpacing: '-0.02em' }}>
+          {initial ? 'Editar gasto' : 'Nuevo gasto'}
+        </h3>
+
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div>
-            <label style={lbl}>Descripción</label>
+          <Field label="Descripción">
             <input value={form.description} onChange={e => set('description', e.target.value)} placeholder="Ej: Supermercado" required />
-          </div>
+          </Field>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={lbl}>Monto ($)</label>
+            <Field label="Monto ($)">
               <input type="number" step="0.01" min="0" value={form.amount} onChange={e => set('amount', e.target.value)} placeholder="0.00" required />
-            </div>
-            <div>
-              <label style={lbl}>Fecha</label>
+            </Field>
+            <Field label="Fecha">
               <input type="date" value={form.date} onChange={e => set('date', e.target.value)} />
-            </div>
+            </Field>
           </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={lbl}>Categoría</label>
+            <Field label="Categoría">
               <select value={form.category} onChange={e => set('category', e.target.value)}>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>)}
               </select>
-            </div>
-            <div>
-              <label style={lbl}>Miembro</label>
+            </Field>
+            <Field label="Miembro">
               <select value={form.member} onChange={e => set('member', e.target.value)}>
                 {members.filter(m => m !== 'Todos').map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-            </div>
+            </Field>
           </div>
-          <div>
-            <label style={lbl}>Nota (opcional)</label>
+
+          <Field label="Nota (opcional)">
             <input value={form.note} onChange={e => set('note', e.target.value)} placeholder="Comentario adicional" />
-          </div>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 6 }}>
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary">{initial ? 'Guardar' : 'Agregar'}</button>
+          </Field>
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+            <button type="button" className="btn btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
+            <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+              {initial ? 'Guardar' : 'Agregar'}
+            </button>
           </div>
         </form>
       </div>
@@ -68,10 +84,23 @@ export default function ExpenseForm({ members, categories, onAdd, onClose, initi
   )
 }
 
-const overlay = {
-  position: 'fixed', inset: 0, background: '#00000088',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  padding: 16, zIndex: 100,
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 6, fontWeight: 500, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+        {label}
+      </label>
+      {children}
+    </div>
+  )
 }
 
-const lbl = { display: 'block', fontSize: 12, color: 'var(--text2)', marginBottom: 6, fontWeight: 500 }
+const overlay = {
+  position: 'fixed', inset: 0,
+  background: 'rgba(0,0,10,0.6)',
+  backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
+  display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+  padding: '0 12px 24px',
+  zIndex: 100,
+}
