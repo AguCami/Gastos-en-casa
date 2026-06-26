@@ -33,10 +33,10 @@ export default function AuthPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={logoWrap}>🏠</div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6, color: 'rgba(255,255,255,0.95)' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6, color: 'rgba(255,255,255,0.97)' }}>
             Gastos en Casa
           </h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
             {mode === 'login' ? 'Ingresá a tu cuenta' : 'Creá tu cuenta gratuita'}
           </p>
         </div>
@@ -45,10 +45,13 @@ export default function AuthPage() {
         <div style={modeToggle}>
           {['login','register'].map(m => (
             <button key={m} onClick={() => { setMode(m); setError('') }} style={{
-              flex: 1, padding: '8px', borderRadius: 9, fontSize: 13, fontWeight: mode === m ? 600 : 400,
-              background: mode === m ? 'rgba(255,255,255,0.14)' : 'transparent',
-              color: mode === m ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.38)',
-              border: mode === m ? '1px solid rgba(255,255,255,0.16)' : '1px solid transparent',
+              flex: 1, padding: '8px', borderRadius: 10, fontSize: 13, fontWeight: mode === m ? 600 : 400,
+              background: mode === m
+                ? 'linear-gradient(135deg, rgba(90,143,255,0.72), rgba(124,109,247,0.72))'
+                : 'transparent',
+              color: mode === m ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.38)',
+              border: mode === m ? '1px solid rgba(255,255,255,0.22)' : '1px solid transparent',
+              boxShadow: mode === m ? '0 2px 10px rgba(90,143,255,0.3), inset 0 1px 0 rgba(255,255,255,0.18)' : 'none',
               transition: 'all 0.18s',
             }}>
               {m === 'login' ? 'Iniciar sesión' : 'Registrarse'}
@@ -73,7 +76,7 @@ export default function AuthPage() {
           </div>
 
           {error && (
-            <div style={{ background: 'rgba(255,69,58,0.12)', border: '1px solid rgba(255,69,58,0.25)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#ff7066' }}>
+            <div style={{ background: 'rgba(255,69,58,0.14)', border: '1px solid rgba(255,69,58,0.28)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#ff7066' }}>
               {error}
             </div>
           )}
@@ -99,20 +102,20 @@ const wrap = {
 }
 const card = {
   width: '100%', maxWidth: 400,
-  background: 'rgba(12,18,36,0.80)',
+  background: 'rgba(255,255,255,0.10)',
   backdropFilter: 'blur(48px) saturate(200%)', WebkitBackdropFilter: 'blur(48px) saturate(200%)',
-  border: '1px solid rgba(255,255,255,0.10)',
+  border: '1px solid rgba(255,255,255,0.22)',
   borderRadius: 28, padding: '36px 32px',
-  boxShadow: '0 40px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.14)',
+  boxShadow: '0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25)',
 }
 const logoWrap = {
-  width: 56, height: 56, borderRadius: 16, margin: '0 auto 14px',
-  background: 'linear-gradient(145deg, #5a8fff 0%, #4f6ef7 100%)',
-  border: '1px solid rgba(255,255,255,0.22)',
+  width: 58, height: 58, borderRadius: 17, margin: '0 auto 14px',
+  background: 'linear-gradient(135deg, rgba(90,143,255,0.9), rgba(124,109,247,0.9))',
+  border: '1px solid rgba(255,255,255,0.30)',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  fontSize: 26, boxShadow: '0 6px 24px rgba(79,110,247,0.45)',
+  fontSize: 27, boxShadow: '0 6px 28px rgba(90,143,255,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
 }
 const modeToggle = {
-  display: 'flex', background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 11, padding: 3, gap: 3,
+  display: 'flex', background: 'rgba(255,255,255,0.07)',
+  border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 3, gap: 3,
 }
