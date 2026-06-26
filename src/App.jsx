@@ -12,6 +12,8 @@ import Balances from './components/Balances'
 import Budgets from './components/Budgets'
 import Goals from './components/Goals'
 import Recurring from './components/Recurring'
+import Dashboard from './components/Dashboard'
+import CreditSimulator from './components/CreditSimulator'
 
 export default function App() {
   return (
@@ -23,15 +25,13 @@ export default function App() {
 
 function Inner() {
   const user = useUser()
-
-  if (user === undefined) return <Splash />         // loading auth
-  if (user === null) return <AuthPage />             // not logged in
-
+  if (user === undefined) return <Splash />
+  if (user === null) return <AuthPage />
   return <MainApp />
 }
 
 function MainApp() {
-  const [tab, setTab] = useState('Gastos')
+  const [tab, setTab] = useState('Inicio')
   const [entryType, setEntryType] = useState('expense')
   const [showForm, setShowForm] = useState(false)
   const store = useStore()
@@ -50,13 +50,33 @@ function MainApp() {
   if (!household) return <OnboardingPage />
 
   const hasMembers = members.length > 0
-  const tabs = ['Gastos', 'Resumen', 'Balances', 'Presupuesto', 'Metas', 'Recurrentes', 'Miembros']
+  const tabs = ['Inicio', 'Gastos', 'Resumen', 'Balances', 'Presupuesto', 'Metas', 'Recurrentes', 'Simulador', 'Miembros']
+
+  function registerRecurring(r) {
+    const now = new Date()
+    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    addEntry({
+      type: r.type, description: r.description, amount: r.amount,
+      category: r.category, member: r.member, note: 'Recurrente',
+      date: `${thisMonth}-${String(r.day_of_month).padStart(2, '0')}`,
+    })
+  }
 
   return (
-    <div style={{ minHeight: '100vh' }} onClick={() => {}}>
+    <div style={{ minHeight: '100vh' }}>
       <Header tab={tab} setTab={setTab} tabs={tabs} household={household} />
 
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '28px 16px 100px' }}>
+
+        {tab === 'Inicio' && (
+          <Dashboard
+            expenses={expenses} incomes={incomes} members={members}
+            categories={CATEGORIES} budgets={budgets} goals={goals}
+            recurring={recurring} entries={entries}
+            onGoTo={setTab}
+            onRegisterRecurring={registerRecurring}
+          />
+        )}
 
         {tab === 'Gastos' && (
           <>
@@ -119,14 +139,17 @@ function MainApp() {
           <>
             <h2 style={{ ...pageTitle, marginBottom: 20 }}>Movimientos recurrentes</h2>
             <Recurring
-              recurring={recurring}
-              members={members}
-              categories={CATEGORIES}
-              onAdd={addRecurring}
-              onRemove={removeRecurring}
-              onToggle={toggleRecurring}
+              recurring={recurring} members={members} categories={CATEGORIES}
+              onAdd={addRecurring} onRemove={removeRecurring} onToggle={toggleRecurring}
               onAddEntry={addEntry}
             />
+          </>
+        )}
+
+        {tab === 'Simulador' && (
+          <>
+            <h2 style={{ ...pageTitle, marginBottom: 20 }}>Simulador de créditos</h2>
+            <CreditSimulator />
           </>
         )}
 
@@ -140,11 +163,8 @@ function MainApp() {
 
       {showForm && (
         <EntryForm
-          type={entryType}
-          members={members}
-          expenseCats={CATEGORIES}
-          onAdd={addEntry}
-          onClose={() => setShowForm(false)}
+          type={entryType} members={members} expenseCats={CATEGORIES}
+          onAdd={addEntry} onClose={() => setShowForm(false)}
         />
       )}
     </div>
