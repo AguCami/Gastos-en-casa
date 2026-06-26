@@ -3,8 +3,9 @@
 
 /* ── Design tokens ─────────────────────────────────────── */
 :root {
-  /* Typography */
   --font: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif;
+
+  /* Typography scale */
   --text-xs:   11px;
   --text-sm:   13px;
   --text-base: 15px;
@@ -13,9 +14,9 @@
   --text-xl:   26px;
   --text-2xl:  32px;
 
-  /* Accent RGB triplets — used as rgba(var(--a1), opacity) */
-  --a1: 90, 143, 255;
-  --a2: 124, 109, 247;
+  /* Accent RGB — rgba(var(--a1), opacity) */
+  --a1: 102, 126, 234;
+  --a2: 118,  75, 162;
 
   /* Semantic colors */
   --green:  #30d158;
@@ -27,16 +28,16 @@
   --teal:   #40c8e0;
   --pink:   #f670c7;
 
-  /* Glass surfaces */
+  /* Dashboard glass (dark bg, white text) */
   --glass-bg:        rgba(255, 255, 255, 0.10);
-  --glass-bg-hover:  rgba(255, 255, 255, 0.15);
-  --glass-border:    rgba(255, 255, 255, 0.18);
+  --glass-bg-hover:  rgba(255, 255, 255, 0.16);
+  --glass-border:    rgba(255, 255, 255, 0.16);
   --glass-border-2:  rgba(255, 255, 255, 0.28);
-  --glass-shadow:    0 8px 32px rgba(0, 0, 10, 0.35);
+  --glass-shadow:    0 8px 32px rgba(0, 0, 10, 0.30);
   --glass-blur:      blur(24px) saturate(180%);
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.20);
 
-  /* Text */
+  /* Text on dark */
   --text:  rgba(255, 255, 255, 0.95);
   --text2: rgba(255, 255, 255, 0.55);
   --text3: rgba(255, 255, 255, 0.30);
@@ -49,49 +50,71 @@
   --r-2xl: 32px;
 }
 
-/* ── Animated gradient background ──────────────────────── */
+/* ── Base ──────────────────────────────────────────────── */
 html { font-size: 16px; -webkit-font-smoothing: antialiased; }
 
+/* Vivid animated gradient — login / onboarding pages sit on this */
 body {
   min-height: 100vh;
-  color: var(--text);
   font-family: var(--font);
   font-size: var(--text-base);
   line-height: 1.5;
   overflow-x: hidden;
+  color: rgba(255,255,255,0.95);
   background: linear-gradient(135deg,
-    #0d0b1e 0%,
-    #141035 15%,
-    #1a1650 30%,
-    #0f2044 45%,
-    #0a1628 60%,
-    #131040 75%,
-    #1e1060 90%,
-    #0c0c28 100%
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #43e97b 100%
   );
   background-size: 400% 400%;
-  animation: gradientShift 22s ease infinite;
+  animation: gradientShift 15s ease infinite;
 }
 
 @keyframes gradientShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+/* Dark dashboard background — wraps the entire main app after login */
+.dashboard-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg,
+    #1a1a6e 0%,
+    #2d2b8f 15%,
+    #3b3ab5 30%,
+    #5b4fcf 45%,
+    #4a3fa0 60%,
+    #2e2580 75%,
+    #1e1b6a 90%,
+    #2a2890 100%
+  );
+  background-size: 400% 400%;
+  animation: dashboardDrift 25s ease infinite;
+  position: relative;
+}
+
+.dashboard-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 10%   0%,  rgba(102,126,234,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 60% at 90%  10%,  rgba(118, 75,162,0.16) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 50% 100%,  rgba(48, 209, 88,0.08) 0%, transparent 65%);
+}
+
+.dashboard-bg > * { position: relative; z-index: 1; }
+
+@keyframes dashboardDrift {
   0%   { background-position: 0%  50%; }
   33%  { background-position: 80% 20%; }
   66%  { background-position: 20% 80%; }
   100% { background-position: 0%  50%; }
-}
-
-/* Radial glow accents */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 65% 55% at 10%   0%,  rgba(90,143,255,0.20)  0%, transparent 65%),
-    radial-gradient(ellipse 55% 65% at 92%  10%,  rgba(124,109,247,0.16) 0%, transparent 65%),
-    radial-gradient(ellipse 55% 45% at 50% 100%,  rgba(48,209,88,0.08)   0%, transparent 65%),
-    radial-gradient(ellipse 70% 55% at 0%   70%,  rgba(64,200,224,0.06)  0%, transparent 65%);
 }
 
 /* ── Typography ────────────────────────────────────────── */
@@ -100,7 +123,7 @@ h2 { font-size: var(--text-xl);  font-weight: 750; letter-spacing: -0.03em; }
 h3 { font-size: var(--text-lg);  font-weight: 700; letter-spacing: -0.02em; }
 h4 { font-size: var(--text-md);  font-weight: 650; letter-spacing: -0.01em; }
 
-/* ── Glass card ────────────────────────────────────────── */
+/* ── Glass card (dashboard, white text) ────────────────── */
 .card {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -115,7 +138,7 @@ h4 { font-size: var(--text-md);  font-weight: 650; letter-spacing: -0.01em; }
 .card-interactive:hover {
   background: var(--glass-bg-hover);
   border-color: var(--glass-border-2);
-  box-shadow: 0 14px 48px rgba(0,0,10,0.45), var(--glass-highlight);
+  box-shadow: 0 14px 48px rgba(0,0,10,0.40), var(--glass-highlight);
 }
 
 /* Card entrance animation */
@@ -125,14 +148,24 @@ h4 { font-size: var(--text-md);  font-weight: 650; letter-spacing: -0.01em; }
 }
 .card-enter { animation: fadeInUp 0.38s ease both; }
 
-/* ── Form elements ─────────────────────────────────────── */
+/* ── Glass card (auth pages, light glass + dark text) ──── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.18), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+/* ── Form elements (dashboard) ─────────────────────────── */
 input, select, textarea {
   font-family: var(--font);
   font-size: var(--text-sm);
   font-weight: 400;
   background: rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: var(--r-sm);
   padding: 10px 14px;
@@ -159,7 +192,32 @@ select {
   cursor: pointer;
 }
 
-select option { background: #141030; color: #fff; }
+select option { background: #1e1b6a; color: #fff; }
+
+/* Auth page inputs (light glass, dark text) */
+.glass-input {
+  background: rgba(255, 255, 255, 0.32) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  color: #0f0f2e !important;
+  border-radius: 12px !important;
+  font-weight: 500;
+  transition: all 0.2s;
+  width: 100%;
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  padding: 10px 14px;
+  outline: none;
+}
+
+.glass-input::placeholder { color: rgba(20, 20, 60, 0.38); }
+
+.glass-input:focus {
+  border-color: rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.20), inset 0 1px 0 rgba(255,255,255,0.5) !important;
+  background: rgba(255, 255, 255, 0.38) !important;
+}
 
 /* ── Buttons ───────────────────────────────────────────── */
 button {
@@ -173,10 +231,11 @@ button {
   user-select: none;
 }
 
-button:disabled { opacity: 0.4; cursor: not-allowed; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .btn { padding: 9px 18px; border-radius: var(--r-sm); font-size: var(--text-sm); }
 
+/* Dashboard primary — gradient accent */
 .btn-primary {
   background: linear-gradient(135deg,
     rgba(var(--a1), 0.88),
@@ -184,7 +243,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   );
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 18px rgba(var(--a1), 0.42), var(--glass-highlight);
+  box-shadow: 0 4px 18px rgba(var(--a1), 0.38), var(--glass-highlight);
   font-weight: 600;
 }
 .btn-primary:hover:not(:disabled) {
@@ -192,10 +251,34 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     rgba(var(--a1), 1),
     rgba(var(--a2), 1)
   );
-  box-shadow: 0 6px 28px rgba(var(--a1), 0.58), var(--glass-highlight);
+  box-shadow: 0 6px 28px rgba(var(--a1), 0.55), var(--glass-highlight);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: scale(0.97); }
+
+/* Auth page primary button */
+.btn-glass-primary {
+  background: linear-gradient(135deg,
+    rgba(var(--a1), 0.82),
+    rgba(var(--a2), 0.82)
+  );
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  padding: 11px 18px;
+  width: 100%;
+  box-shadow: 0 4px 18px rgba(var(--a1), 0.42), inset 0 1px 0 rgba(255,255,255,0.28);
+  font-family: var(--font);
+  transition: all 0.18s;
+}
+.btn-glass-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(var(--a1), 1), rgba(var(--a2), 1));
+  box-shadow: 0 6px 28px rgba(var(--a1), 0.58), inset 0 1px 0 rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+.btn-glass-primary:disabled { opacity: 0.5; transform: none; }
 
 .btn-ghost {
   background: rgba(255, 255, 255, 0.10);
@@ -229,6 +312,17 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   margin-bottom: 7px;
 }
 
+/* Dark label for light glass cards */
+.label-dark {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(20, 20, 60, 0.65);
+  margin-bottom: 7px;
+}
+
 /* ── Badge / pill ──────────────────────────────────────── */
 .badge {
   display: inline-block;
@@ -244,8 +338,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 /* ── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.20); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.32); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
 
 /* ── Utilities ─────────────────────────────────────────── */
 .text-muted    { color: var(--text2); }
@@ -260,5 +354,5 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 /* Skeleton pulse */
 @keyframes skeletonPulse {
   0%, 100% { opacity: 0.4; }
-  50%       { opacity: 0.7; }
+  50%       { opacity: 0.75; }
 }

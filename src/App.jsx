@@ -63,7 +63,7 @@ function MainApp() {
   }
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div className="dashboard-bg">
       <Header tab={tab} setTab={setTab} tabs={tabs} household={household} />
 
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '28px 16px 100px' }}>

@@ -28,30 +28,34 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={wrap}>
-      <div style={card}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={logoWrap}>🏠</div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6, color: 'rgba(255,255,255,0.97)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: 400, padding: '36px 32px' }}>
+
+        {/* Logo + título */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={logoWrap}>
+            {/* ícono casa */}
+            <svg width="28" height="28" fill="none" stroke="white" strokeWidth="1.8" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.3))' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12L12 3l9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
+            </svg>
+          </div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#1a1a3e', marginBottom: 5 }}>
             Gastos en Casa
           </h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-            {mode === 'login' ? 'Ingresá a tu cuenta' : 'Creá tu cuenta gratuita'}
+          <p style={{ fontSize: 13, color: 'rgba(30,30,80,0.60)' }}>
+            {mode === 'login' ? 'Ingresá con tus credenciales' : 'Creá tu cuenta gratuita'}
           </p>
         </div>
 
-        {/* Mode toggle */}
+        {/* Toggle login / registro */}
         <div style={modeToggle}>
-          {['login','register'].map(m => (
+          {['login', 'register'].map(m => (
             <button key={m} onClick={() => { setMode(m); setError('') }} style={{
               flex: 1, padding: '8px', borderRadius: 10, fontSize: 13, fontWeight: mode === m ? 600 : 400,
-              background: mode === m
-                ? 'linear-gradient(135deg, rgba(90,143,255,0.72), rgba(124,109,247,0.72))'
-                : 'transparent',
-              color: mode === m ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.38)',
-              border: mode === m ? '1px solid rgba(255,255,255,0.22)' : '1px solid transparent',
-              boxShadow: mode === m ? '0 2px 10px rgba(90,143,255,0.3), inset 0 1px 0 rgba(255,255,255,0.18)' : 'none',
+              background: mode === m ? 'rgba(255,255,255,0.55)' : 'transparent',
+              color: mode === m ? '#1a1a3e' : 'rgba(30,30,80,0.50)',
+              border: mode === m ? '1px solid rgba(255,255,255,0.70)' : '1px solid transparent',
+              boxShadow: mode === m ? '0 2px 8px rgba(31,38,135,0.12)' : 'none',
               transition: 'all 0.18s',
             }}>
               {m === 'login' ? 'Iniciar sesión' : 'Registrarse'}
@@ -59,32 +63,42 @@ export default function AuthPage() {
           ))}
         </div>
 
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 13, marginTop: 20 }}>
+        {/* Formulario */}
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20 }}>
           {mode === 'register' && (
             <div>
-              <label className="label">Tu nombre</label>
-              <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Agustín García" required />
+              <label className="label-dark">Tu nombre</label>
+              <input className="glass-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Agustín García" required />
             </div>
           )}
           <div>
-            <label className="label">Email</label>
-            <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="tu@email.com" required />
+            <label className="label-dark">Email</label>
+            <input className="glass-input" type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="tu@email.com" required />
           </div>
           <div>
-            <label className="label">Contraseña</label>
-            <input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 6 caracteres" required minLength={6} />
+            <label className="label-dark">Contraseña</label>
+            <input className="glass-input" type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="••••••••" required minLength={6} />
           </div>
 
           {error && (
-            <div style={{ background: 'rgba(255,69,58,0.14)', border: '1px solid rgba(255,69,58,0.28)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#ff7066' }}>
+            <p style={{ background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.35)', color: '#b91c1c', borderRadius: 12, padding: '10px 14px', fontSize: 13, fontWeight: 500 }}>
               {error}
-            </div>
+            </p>
           )}
 
-          <button type="submit" className="btn btn-primary" style={{ marginTop: 4, padding: '13px', fontSize: 14, fontWeight: 700, borderRadius: 12 }} disabled={loading}>
+          <button type="submit" className="btn-glass-primary" style={{ marginTop: 4, fontSize: 14, fontWeight: 700, padding: '13px' }} disabled={loading}>
             {loading ? 'Un momento...' : (mode === 'login' ? 'Ingresar' : 'Crear cuenta')}
           </button>
         </form>
+
+        {mode === 'login' && (
+          <p style={{ textAlign: 'center', fontSize: 13, marginTop: 16, color: 'rgba(30,30,80,0.60)' }}>
+            ¿No tenés cuenta?{' '}
+            <button onClick={() => setMode('register')} style={{ background: 'none', color: '#4f46e5', fontWeight: 700, fontSize: 13, padding: 0 }}>
+              Registrate
+            </button>
+          </p>
+        )}
       </div>
     </div>
   )
@@ -97,25 +111,14 @@ function translateError(msg) {
   return msg
 }
 
-const wrap = {
-  minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
-}
-const card = {
-  width: '100%', maxWidth: 400,
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(48px) saturate(200%)', WebkitBackdropFilter: 'blur(48px) saturate(200%)',
-  border: '1px solid rgba(255,255,255,0.22)',
-  borderRadius: 28, padding: '36px 32px',
-  boxShadow: '0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25)',
-}
 const logoWrap = {
-  width: 58, height: 58, borderRadius: 17, margin: '0 auto 14px',
-  background: 'linear-gradient(135deg, rgba(90,143,255,0.9), rgba(124,109,247,0.9))',
-  border: '1px solid rgba(255,255,255,0.30)',
+  width: 64, height: 64, borderRadius: 18, margin: '0 auto 14px',
+  background: 'linear-gradient(135deg, rgba(102,126,234,0.75), rgba(118,75,162,0.75))',
+  border: '1px solid rgba(255,255,255,0.45)',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  fontSize: 27, boxShadow: '0 6px 28px rgba(90,143,255,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
+  boxShadow: '0 4px 24px rgba(102,126,234,0.42), inset 0 1px 0 rgba(255,255,255,0.35)',
 }
 const modeToggle = {
-  display: 'flex', background: 'rgba(255,255,255,0.07)',
-  border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 3, gap: 3,
+  display: 'flex', background: 'rgba(255,255,255,0.20)',
+  border: '1px solid rgba(255,255,255,0.40)', borderRadius: 12, padding: 3, gap: 3,
 }

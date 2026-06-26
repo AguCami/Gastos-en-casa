@@ -51,12 +51,22 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div style={wrap}>
-      <div style={card}>
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={iconWrap}>🏠</div>
-          <h2 style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.03em', marginBottom: 6 }}>Configurá tu hogar</h2>
-          <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 13 }}>Creá un hogar nuevo o unite a uno existente</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: 420, padding: 32 }}>
+
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 26 }}>
+          <div style={iconWrap}>
+            <svg width="28" height="28" fill="none" stroke="white" strokeWidth="1.8" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.3))' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12L12 3l9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
+            </svg>
+          </div>
+          <h2 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', color: '#1a1a3e', marginBottom: 5 }}>
+            Configurá tu hogar
+          </h2>
+          <p style={{ color: 'rgba(30,30,80,0.58)', fontSize: 13 }}>
+            Creá un hogar nuevo o unite a uno existente
+          </p>
         </div>
 
         {/* Toggle */}
@@ -64,12 +74,10 @@ export default function OnboardingPage() {
           {(['create', 'join']).map(t => (
             <button key={t} onClick={() => { setTab(t); setError('') }} style={{
               flex: 1, padding: '9px', borderRadius: 10, fontSize: 13, fontWeight: tab === t ? 600 : 400,
-              background: tab === t
-                ? 'linear-gradient(135deg, rgba(90,143,255,0.72), rgba(124,109,247,0.72))'
-                : 'transparent',
-              color: tab === t ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.42)',
-              border: tab === t ? '1px solid rgba(255,255,255,0.22)' : '1px solid transparent',
-              boxShadow: tab === t ? '0 2px 10px rgba(90,143,255,0.3), inset 0 1px 0 rgba(255,255,255,0.18)' : 'none',
+              background: tab === t ? 'rgba(255,255,255,0.55)' : 'transparent',
+              color: tab === t ? '#1a1a3e' : 'rgba(30,30,80,0.50)',
+              border: tab === t ? '1px solid rgba(255,255,255,0.70)' : '1px solid transparent',
+              boxShadow: tab === t ? '0 2px 8px rgba(31,38,135,0.12)' : 'none',
               transition: 'all 0.18s',
             }}>
               {t === 'create' ? '✨ Crear hogar' : '🔗 Unirse a uno'}
@@ -80,32 +88,33 @@ export default function OnboardingPage() {
         {tab === 'create' ? (
           <form onSubmit={createHousehold} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
             <div>
-              <label className="label">Nombre del hogar</label>
-              <input value={householdName} onChange={e => setHouseholdName(e.target.value)} placeholder="Ej: Casa de los García" required />
+              <label className="label-dark">Nombre del hogar</label>
+              <input className="glass-input" value={householdName} onChange={e => setHouseholdName(e.target.value)} placeholder="Ej: Casa de los García" required />
             </div>
             {error && <ErrBox msg={error} />}
-            <button type="submit" className="btn btn-primary" style={{ padding: 12, fontSize: 14, fontWeight: 600, borderRadius: 12 }} disabled={loading}>
+            <button type="submit" className="btn-glass-primary" style={{ padding: 12, fontSize: 14, fontWeight: 600 }} disabled={loading}>
               {loading ? 'Creando...' : 'Crear hogar'}
             </button>
           </form>
         ) : (
           <form onSubmit={joinHousehold} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
             <div>
-              <label className="label">Código de invitación</label>
+              <label className="label-dark">Código de invitación</label>
               <input
+                className="glass-input"
                 value={inviteCode}
                 onChange={e => setInviteCode(e.target.value.toUpperCase())}
                 placeholder="AB12CD"
                 maxLength={6}
-                style={{ textAlign: 'center', fontSize: 22, fontWeight: 800, letterSpacing: '0.18em' }}
+                style={{ textAlign: 'center', fontSize: 24, fontWeight: 800, letterSpacing: '0.20em' }}
                 required
               />
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)', marginTop: 6, textAlign: 'center' }}>
+              <p style={{ fontSize: 11, color: 'rgba(30,30,80,0.48)', marginTop: 6, textAlign: 'center' }}>
                 Pedile el código a quien ya tiene el hogar creado
               </p>
             </div>
             {error && <ErrBox msg={error} />}
-            <button type="submit" className="btn btn-primary" style={{ padding: 12, fontSize: 14, fontWeight: 600, borderRadius: 12 }} disabled={loading}>
+            <button type="submit" className="btn-glass-primary" style={{ padding: 12, fontSize: 14, fontWeight: 600 }} disabled={loading}>
               {loading ? 'Buscando...' : 'Unirse'}
             </button>
           </form>
@@ -117,29 +126,20 @@ export default function OnboardingPage() {
 
 function ErrBox({ msg }) {
   return (
-    <div style={{ background: 'rgba(255,69,58,0.14)', border: '1px solid rgba(255,69,58,0.28)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#ff6b6b' }}>
+    <p style={{ background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.35)', color: '#b91c1c', borderRadius: 12, padding: '10px 14px', fontSize: 13, fontWeight: 500 }}>
       {msg}
-    </div>
+    </p>
   )
 }
 
-const wrap = { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }
-const card = {
-  width: '100%', maxWidth: 420,
-  background: 'rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(48px) saturate(200%)', WebkitBackdropFilter: 'blur(48px) saturate(200%)',
-  border: '1px solid rgba(255,255,255,0.22)',
-  borderRadius: 28, padding: 32,
-  boxShadow: '0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25)',
-}
 const iconWrap = {
-  width: 58, height: 58, borderRadius: 17, margin: '0 auto 14px',
-  background: 'linear-gradient(135deg, rgba(90,143,255,0.9), rgba(124,109,247,0.9))',
-  border: '1px solid rgba(255,255,255,0.30)',
+  width: 64, height: 64, borderRadius: 18, margin: '0 auto 14px',
+  background: 'linear-gradient(135deg, rgba(102,126,234,0.75), rgba(118,75,162,0.75))',
+  border: '1px solid rgba(255,255,255,0.45)',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  fontSize: 27, boxShadow: '0 6px 28px rgba(90,143,255,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
+  boxShadow: '0 4px 24px rgba(102,126,234,0.42), inset 0 1px 0 rgba(255,255,255,0.35)',
 }
 const toggle = {
-  display: 'flex', background: 'rgba(255,255,255,0.07)',
-  border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 3, gap: 3,
+  display: 'flex', background: 'rgba(255,255,255,0.20)',
+  border: '1px solid rgba(255,255,255,0.40)', borderRadius: 12, padding: 3, gap: 3,
 }
