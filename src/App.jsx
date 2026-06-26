@@ -12,9 +12,16 @@ export default function App() {
   const [tab, setTab] = useState('Gastos')
   const [entryType, setEntryType] = useState('expense')  // 'expense' | 'income'
   const [showForm, setShowForm] = useState(false)
-  const { members, expenses, incomes, entries, budgets, addMember, removeMember, addEntry, removeEntry, editEntry, setBudget, CATEGORIES } = useStore()
+  const { loading, members, expenses, incomes, entries, budgets, addMember, removeMember, addEntry, removeEntry, editEntry, setBudget, CATEGORIES } = useStore()
 
   const hasMembers = members.length > 0
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 48 }}>🏠</div>
+      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15 }}>Cargando...</div>
+    </div>
+  )
 
   const tabs = ['Gastos', 'Resumen', 'Balances', 'Presupuesto', 'Miembros']
 

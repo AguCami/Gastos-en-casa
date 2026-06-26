@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { supabase } from './supabase'
 
 export const CATEGORIES = [
   { id: 'comida', label: 'Comida', color: '#f97316', emoji: '🛒' },
@@ -11,48 +12,103 @@ export const CATEGORIES = [
   { id: 'otro', label: 'Otro', color: '#94a3b8', emoji: '📦' },
 ]
 
-function load(key, fallback) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback }
-  catch { return fallback }
-}
-function save(key, value) { localStorage.setItem(key, JSON.stringify(value)) }
-
 export function useStore() {
-  const [members, setMembers] = useState(() => load('gc_members', []))
-  const [entries, setEntries] = useState(() => load('gc_entries', []))   // gastos + ingresos
-  const [budgets, setBudgets] = useState(() => load('gc_budgets', {}))   // { catId: amount }
+  const [members, setMembers] = useState([])
+  const [entries, setEntries]  = useState([])
+  const [budgets, setBudgetsState] = useState({})
+  const [loading, setLoading]  = useState(true)
 
-  useEffect(() => { save('gc_members', members) }, [members])
-  useEffect(() => { save('gc_entries', entries) }, [entries])
-  useEffect(() => { save('gc_budgets', budgets) }, [budgets])
+  // ── Initial load ──────────────────────────────────────
+  useEffect(() => {
+    async function fetchAll() {
+      const [{ data: mem }, { data: ent }, { data: bud }] = await Promise.all([
+        supabase.from('members').select('*').order('created_at'),
+        supabase.from('entries').select('*').order('created_at', { ascending: false }),
+        supabase.from('budgets').select('*'),
+      ])
+      setMembers((mem || []).map(r => r.name))
+      setEntries(ent || [])
+      const budMap = {}
+      ;(bud || []).forEach(r => { budMap[r.category_id] = r.amount })
+      setBudgetsState(budMap)
+      setLoading(false)
+    }
+    fetchAll()
+  }, [])
 
-  // members helpers
-  function addMember(name) {
+  // ── Real-time sync ────────────────────────────────────
+  useEffect(() => {
+    const ch = supabase
+      .channel('realtime-all')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, () => {
+        supabase.from('members').select('*').order('created_at').then(({ data }) => {
+          if (data) setMembers(data.map(r => r.name))
+        })
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'entries' }, () => {
+        supabase.from('entries').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+          if (data) setEntries(data)
+        })
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'budgets' }, () => {
+        supabase.from('budgets').select('*').then(({ data }) => {
+          if (data) {
+            const m = {}
+            data.forEach(r => { m[r.category_id] = r.amount })
+            setBudgetsState(m)
+          }
+        })
+      })
+      .subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [])
+
+  // ── Members ───────────────────────────────────────────
+  async function addMember(name) {
     const n = name.trim()
-    if (n && !members.includes(n)) setMembers(m => [...m, n])
+    if (!n || members.includes(n)) return
+    setMembers(m => [...m, n])  // optimistic
+    await supabase.from('members').insert({ name: n })
   }
-  function removeMember(name) {
+
+  async function removeMember(name) {
     setMembers(m => m.filter(x => x !== name))
     setEntries(e => e.filter(x => x.member !== name))
+    await supabase.from('members').delete().eq('name', name)
+    await supabase.from('entries').delete().eq('member', name)
   }
 
-  // entries helpers
-  function addEntry(entry) {
-    setEntries(e => [{ ...entry, id: Date.now() + Math.random() }, ...e])
-  }
-  function removeEntry(id) { setEntries(e => e.filter(x => x.id !== id)) }
-  function editEntry(updated) { setEntries(e => e.map(x => x.id === updated.id ? updated : x)) }
-
-  // budgets helpers
-  function setBudget(catId, amount) {
-    setBudgets(b => ({ ...b, [catId]: amount }))
+  // ── Entries ───────────────────────────────────────────
+  async function addEntry(entry) {
+    const { id, ...rest } = entry  // strip any local id
+    const row = { ...rest, amount: parseFloat(rest.amount) }
+    const { data } = await supabase.from('entries').insert(row).select().single()
+    if (data) setEntries(e => [data, ...e])
   }
 
-  // derived
+  async function removeEntry(id) {
+    setEntries(e => e.filter(x => x.id !== id))
+    await supabase.from('entries').delete().eq('id', id)
+  }
+
+  async function editEntry(updated) {
+    const { id, created_at, ...fields } = updated
+    setEntries(e => e.map(x => x.id === id ? updated : x))
+    await supabase.from('entries').update(fields).eq('id', id)
+  }
+
+  // ── Budgets ───────────────────────────────────────────
+  async function setBudget(catId, amount) {
+    setBudgetsState(b => ({ ...b, [catId]: amount }))
+    await supabase.from('budgets').upsert({ category_id: catId, amount, updated_at: new Date().toISOString() }, { onConflict: 'category_id' })
+  }
+
+  // ── Derived ───────────────────────────────────────────
   const expenses = entries.filter(e => e.type === 'expense')
   const incomes  = entries.filter(e => e.type === 'income')
 
   return {
+    loading,
     members, expenses, incomes, entries, budgets,
     addMember, removeMember,
     addEntry, removeEntry, editEntry,
