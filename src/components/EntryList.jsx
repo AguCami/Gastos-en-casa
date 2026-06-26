@@ -3,11 +3,11 @@ import EntryForm from './EntryForm'
 import ExportButton from './ExportButton'
 
 const INCOME_CATS = [
-  { id: 'sueldo', label: 'Sueldo', emoji: '💼', color: '#34d058' },
-  { id: 'freelance', label: 'Freelance', emoji: '💻', color: '#34d058' },
-  { id: 'alquiler', label: 'Alquiler cobrado', emoji: '🏘️', color: '#34d058' },
-  { id: 'transferencia', label: 'Transferencia', emoji: '💸', color: '#34d058' },
-  { id: 'otro_ing', label: 'Otro', emoji: '📥', color: '#34d058' },
+  { id: 'sueldo',        label: 'Sueldo',           emoji: '💼', color: '#30d158' },
+  { id: 'freelance',     label: 'Freelance',         emoji: '💻', color: '#30d158' },
+  { id: 'alquiler',      label: 'Alquiler cobrado',  emoji: '🏘️', color: '#30d158' },
+  { id: 'transferencia', label: 'Transferencia',     emoji: '💸', color: '#30d158' },
+  { id: 'otro_ing',      label: 'Otro',              emoji: '📥', color: '#30d158' },
 ]
 
 export default function EntryList({ type, entries, members, expenseCats, onRemove, onEdit }) {
@@ -25,7 +25,9 @@ export default function EntryList({ type, entries, members, expenseCats, onRemov
     return true
   })
 
-  const total = filtered.reduce((s, e) => s + e.amount, 0)
+  const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date))
+  const total  = filtered.reduce((s, e) => s + e.amount, 0)
+  const isInc  = type === 'income'
 
   function getCat(id) {
     return cats.find(c => c.id === id) || cats[cats.length - 1]
@@ -33,68 +35,81 @@ export default function EntryList({ type, entries, members, expenseCats, onRemov
 
   return (
     <div>
-      {/* Filters */}
-      <div style={filterBar}>
-        <select value={filter.member} onChange={e => setFilter(f => ({ ...f, member: e.target.value }))} style={{ width: 'auto', flex: '1 1 110px' }}>
+      {/* Filter bar */}
+      <div style={{
+        display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14, alignItems: 'center',
+        background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '10px 14px',
+      }}>
+        <select value={filter.member} onChange={e => setFilter(f => ({ ...f, member: e.target.value }))} style={{ width: 'auto', flex: '1 1 100px' }}>
           {allMembers.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
-        <select value={filter.category} onChange={e => setFilter(f => ({ ...f, category: e.target.value }))} style={{ width: 'auto', flex: '1 1 160px' }}>
+        <select value={filter.category} onChange={e => setFilter(f => ({ ...f, category: e.target.value }))} style={{ width: 'auto', flex: '1 1 150px' }}>
           <option value="todas">Todas las categorías</option>
           {cats.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>)}
         </select>
-        <input type="month" value={filter.month} onChange={e => setFilter(f => ({ ...f, month: e.target.value }))} style={{ width: 'auto', flex: '1 1 130px' }} />
-        <ExportButton entries={filtered} categories={[...cats]} />
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-          {filtered.length} · <strong style={{ color: type === 'income' ? '#34d058' : '#fff' }}>
-            {type === 'income' ? '+' : ''}${total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+        <input type="month" value={filter.month} onChange={e => setFilter(f => ({ ...f, month: e.target.value }))} style={{ width: 'auto', flex: '1 1 120px' }} />
+        <ExportButton entries={filtered} categories={cats} />
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+          {filtered.length} · <strong style={{ color: isInc ? 'var(--green)' : 'rgba(255,255,255,0.9)' }}>
+            {isInc ? '+' : ''}${total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
           </strong>
         </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.35)' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>{type === 'income' ? '💰' : '💸'}</div>
-          <div>No hay {type === 'income' ? 'ingresos' : 'gastos'} registrados</div>
+      {sorted.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '72px 0', color: 'rgba(255,255,255,0.22)' }}>
+          <div style={{ fontSize: 52, marginBottom: 14 }}>{isInc ? '💰' : '💸'}</div>
+          <div style={{ fontSize: 14 }}>No hay {isInc ? 'ingresos' : 'gastos'} registrados</div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {filtered.map(entry => {
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {sorted.map(entry => {
             const cat = getCat(entry.category)
-            const isIncome = entry.type === 'income'
+            const entryIsInc = entry.type === 'income'
+            const accentColor = entryIsInc ? '#30d158' : cat.color
+
             return (
-              <div key={entry.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18 }}>
+              <div key={entry.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '13px 16px', borderRadius: 17 }}>
+                {/* Icon */}
                 <div style={{
-                  width: 44, height: 44, borderRadius: 14, flexShrink: 0,
-                  background: isIncome ? 'rgba(52,208,88,0.15)' : `linear-gradient(135deg, ${cat.color}55, ${cat.color}22)`,
-                  border: isIncome ? '1px solid rgba(52,208,88,0.3)' : `1px solid ${cat.color}44`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-                }}>
-                  {cat.emoji}
-                </div>
+                  width: 42, height: 42, borderRadius: 13, flexShrink: 0,
+                  background: `${accentColor}18`, border: `1px solid ${accentColor}35`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+                }}>{cat.emoji}</div>
+
+                {/* Text */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.01em' }}>
                     {entry.description}
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    <span style={{ background: isIncome ? 'rgba(52,208,88,0.15)' : `${cat.color}25`, color: isIncome ? '#34d058' : cat.color, borderRadius: 6, padding: '1px 7px', border: `1px solid ${isIncome ? 'rgba(52,208,88,0.3)' : cat.color + '40'}` }}>{cat.label}</span>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', marginTop: 3, display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{
+                      background: `${accentColor}18`, color: accentColor,
+                      borderRadius: 5, padding: '1px 6px', fontSize: 10, fontWeight: 600,
+                      border: `1px solid ${accentColor}30`,
+                    }}>{cat.label}</span>
                     <span>{entry.member}</span>
                     <span>·</span>
                     <span>{formatDate(entry.date)}</span>
-                    {entry.note && <><span>·</span><span>{entry.note}</span></>}
+                    {entry.note && <><span>·</span><span style={{ fontStyle: 'italic' }}>{entry.note}</span></>}
                   </div>
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 17, flexShrink: 0, letterSpacing: '-0.02em', color: isIncome ? '#34d058' : '#fff' }}>
-                  {isIncome ? '+' : ''}${entry.amount.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+
+                {/* Amount */}
+                <div style={{ fontWeight: 750, fontSize: 16, flexShrink: 0, letterSpacing: '-0.02em', color: entryIsInc ? 'var(--green)' : 'rgba(255,255,255,0.95)', fontVariantNumeric: 'tabular-nums' }}>
+                  {entryIsInc ? '+' : ''}${entry.amount.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </div>
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0, alignItems: 'center' }}>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: 5, flexShrink: 0, alignItems: 'center' }}>
                   {entry.receipt_url && (
-                    <a href={entry.receipt_url} target="_blank" rel="noopener noreferrer">
-                      <img src={entry.receipt_url} alt="ticket"
-                        style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }} />
+                    <a href={entry.receipt_url} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0 }}>
+                      <img src={entry.receipt_url} alt="ticket" style={{ width: 34, height: 34, objectFit: 'cover', borderRadius: 9, border: '1px solid rgba(255,255,255,0.12)', display: 'block' }} />
                     </a>
                   )}
-                  <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: 13, borderRadius: 10 }} onClick={() => setEditing(entry)}>✏️</button>
-                  <button className="btn btn-danger" style={{ padding: '6px 10px', fontSize: 13, borderRadius: 10 }} onClick={() => onRemove(entry.id)}>✕</button>
+                  <button className="btn btn-ghost" style={{ padding: '5px 9px', fontSize: 13, borderRadius: 9 }} onClick={() => setEditing(entry)}>✏️</button>
+                  <button className="btn btn-danger" style={{ padding: '5px 9px', fontSize: 13, borderRadius: 9 }} onClick={() => onRemove(entry.id)}>✕</button>
                 </div>
               </div>
             )
@@ -120,10 +135,4 @@ function formatDate(d) {
   if (!d) return ''
   const [y, m, day] = d.split('-')
   return `${day}/${m}/${y}`
-}
-
-const filterBar = {
-  display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center',
-  background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '10px 14px',
 }

@@ -173,9 +173,15 @@ function MainApp() {
 
 function Splash() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14 }}>
-      <div style={{ fontSize: 52 }}>🏠</div>
-      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15 }}>Cargando...</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+      <div style={{
+        width: 64, height: 64, borderRadius: 20,
+        background: 'linear-gradient(145deg, #5a8fff 0%, #4f6ef7 100%)',
+        border: '1px solid rgba(255,255,255,0.22)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
+        boxShadow: '0 8px 32px rgba(79,110,247,0.45)',
+      }}>🏠</div>
+      <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14, letterSpacing: '0.02em' }}>Cargando...</div>
     </div>
   )
 }
@@ -194,9 +200,9 @@ function EmptyMembers({ onGo }) {
   )
 }
 
-const pageTitle = { fontWeight: 700, fontSize: 22, letterSpacing: '-0.03em' }
+const pageTitle = { fontWeight: 750, fontSize: 22, letterSpacing: '-0.04em' }
 const toggleStyle = {
-  display: 'flex', background: 'rgba(255,255,255,0.07)',
-  backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-  border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 3, gap: 2,
+  display: 'flex', background: 'rgba(255,255,255,0.06)',
+  backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid rgba(255,255,255,0.09)', borderRadius: 12, padding: 3, gap: 3,
 }

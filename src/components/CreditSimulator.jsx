@@ -10,126 +10,120 @@ export default function CreditSimulator() {
     const n = parseInt(form.months)
     if (!P || !anual || !n) return null
 
-    const r = anual / 100 / 12  // tasa mensual
+    const r = anual / 100 / 12
 
     if (form.type === 'french') {
-      // Cuota fija: P * r * (1+r)^n / ((1+r)^n - 1)
       const cuota = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1)
       const totalPago = cuota * n
-      const totalIntereses = totalPago - P
-      const cftAnual = (Math.pow(cuota * n / P, 12 / n) - 1) * 100
-
-      const tabla = Array.from({ length: n }, (_, i) => {
-        const interes = i === 0 ? P * r : null  // lazy: only first shown
-        return { cuota: Math.round(cuota * 100) / 100 }
-      })
-
-      return { cuota, totalPago, totalIntereses, cftAnual, tabla: tabla.slice(0, 3), n }
+      return { cuota, totalPago, totalIntereses: totalPago - P, tabla: Array.from({ length: 3 }, () => ({ cuota })), n }
     }
 
     if (form.type === 'german') {
-      // Capital fijo
       const capitalCuota = P / n
       const rows = []
-      let saldo = P
-      let totalPago = 0
+      let saldo = P, totalPago = 0
       for (let i = 0; i < n; i++) {
         const interes = saldo * r
         const cuota = capitalCuota + interes
         totalPago += cuota
         saldo -= capitalCuota
-        if (i < 3) rows.push({ num: i + 1, cuota: Math.round(cuota * 100) / 100, interes: Math.round(interes * 100) / 100 })
+        if (i < 3) rows.push({ cuota: Math.round(cuota * 100) / 100, interes: Math.round(interes * 100) / 100 })
       }
-      const cuota1 = rows[0]?.cuota || 0
-      return { cuota: cuota1, totalPago, totalIntereses: totalPago - P, tabla: rows, n }
+      return { cuota: rows[0]?.cuota || 0, totalPago, totalIntereses: totalPago - P, tabla: rows, n }
     }
   }, [form])
 
+  const isFrench = form.type === 'french'
+
   return (
-    <div style={{ maxWidth: 600 }}>
-      {/* Inputs */}
-      <div className="card" style={{ borderRadius: 22, marginBottom: 16 }}>
-        <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 18 }}>💳 Calculadora de crédito</h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ maxWidth: 600, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Input card */}
+      <div className="card" style={{ padding: '20px 22px' }}>
+        <div style={{ fontSize: 13, fontWeight: 650, letterSpacing: '-0.01em', marginBottom: 20 }}>
+          💳 Calculadora de crédito
+        </div>
 
-          {/* Type toggle */}
-          <div>
-            <label style={lbl}>Sistema de amortización</label>
-            <div style={toggle}>
-              {[['french','Francés (cuota fija)'],['german','Alemán (capital fijo)']].map(([v, l]) => (
-                <button key={v} type="button" onClick={() => set('type', v)} style={{
-                  flex: 1, padding: '8px', borderRadius: 10, fontSize: 13, fontWeight: form.type === v ? 600 : 400,
-                  background: form.type === v ? 'rgba(255,255,255,0.18)' : 'transparent',
-                  color: form.type === v ? '#fff' : 'rgba(255,255,255,0.45)',
-                  border: form.type === v ? '1px solid rgba(255,255,255,0.25)' : '1px solid transparent',
-                  transition: 'all 0.18s',
-                }}>{l}</button>
-              ))}
-            </div>
+        {/* Type toggle */}
+        <div style={{ marginBottom: 18 }}>
+          <label className="label">Sistema de amortización</label>
+          <div style={toggle}>
+            {[['french','Francés (cuota fija)'],['german','Alemán (capital fijo)']].map(([v, l]) => (
+              <button key={v} type="button" onClick={() => set('type', v)} style={{
+                flex: 1, padding: '9px', borderRadius: 10, fontSize: 13, fontWeight: form.type === v ? 600 : 400,
+                background: form.type === v ? 'rgba(255,255,255,0.14)' : 'transparent',
+                color: form.type === v ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.42)',
+                border: form.type === v ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+                transition: 'all 0.18s',
+              }}>{l}</button>
+            ))}
           </div>
+        </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={lbl}>Monto ($)</label>
-              <input type="number" min="0" step="1000" value={form.amount} onChange={e => set('amount', e.target.value)} placeholder="500,000" />
-            </div>
-            <div>
-              <label style={lbl}>TNA (%)</label>
-              <input type="number" min="0" step="0.5" value={form.rate} onChange={e => set('rate', e.target.value)} placeholder="80" />
-            </div>
-            <div>
-              <label style={lbl}>Cuotas</label>
-              <input type="number" min="1" max="360" value={form.months} onChange={e => set('months', e.target.value)} placeholder="12" />
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          <div>
+            <label className="label">Monto ($)</label>
+            <input type="number" min="0" step="1000" value={form.amount} onChange={e => set('amount', e.target.value)} placeholder="500,000" />
+          </div>
+          <div>
+            <label className="label">TNA (%)</label>
+            <input type="number" min="0" step="0.5" value={form.rate} onChange={e => set('rate', e.target.value)} placeholder="80" />
+          </div>
+          <div>
+            <label className="label">Cuotas</label>
+            <input type="number" min="1" max="360" value={form.months} onChange={e => set('months', e.target.value)} placeholder="12" />
           </div>
         </div>
       </div>
 
       {/* Results */}
-      {result && (
+      {result ? (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 16 }}>
-            <ResultKpi label={form.type === 'french' ? 'Cuota mensual' : '1° cuota'} value={result.cuota} color="#4f8ef7" />
-            <ResultKpi label="Total a pagar" value={result.totalPago} color="#ffd60a" />
-            <ResultKpi label="Total intereses" value={result.totalIntereses} color="#ff453a" />
-            <ResultKpi label="% interés total" value={result.totalIntereses / parseFloat(form.amount) * 100} color="#ec4899" isPercent />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
+            <ResultKpi label={isFrench ? 'Cuota mensual' : '1° cuota'} value={result.cuota}            color="#5a8fff" />
+            <ResultKpi label="Total a pagar"                            value={result.totalPago}        color="var(--yellow)" />
+            <ResultKpi label="Total intereses"                          value={result.totalIntereses}   color="var(--red)" />
+            <ResultKpi label="% interés"
+              value={result.totalIntereses / parseFloat(form.amount) * 100}
+              color="#f670c7" isPercent
+            />
           </div>
 
           {/* Amortization preview */}
-          <div className="card" style={{ borderRadius: 20 }}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>
-              Primeras cuotas (de {result.n} total)
+          <div className="card" style={{ padding: '18px 20px' }}>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', marginBottom: 14 }}>
+              Primeras cuotas de {result.n} total
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {result.tabla.map((row, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(79,142,247,0.2)', border: '1px solid rgba(79,142,247,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#4f8ef7', flexShrink: 0 }}>
-                    {i + 1}
-                  </div>
-                  <div style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                    background: 'rgba(90,143,255,0.18)', border: '1px solid rgba(90,143,255,0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 700, color: '#5a8fff',
+                  }}>{i + 1}</div>
+                  <div style={{ flex: 1, fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
                     ${row.cuota.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                   </div>
                   {row.interes !== undefined && (
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-                      int: ${row.interes.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>
+                      interés: ${row.interes.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </div>
                   )}
                 </div>
               ))}
               {result.n > 3 && (
-                <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)', padding: '4px 0' }}>
-                  ... {result.n - 3} cuotas más
+                <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.25)', padding: '4px 0' }}>
+                  ··· {result.n - 3} cuotas más
                 </div>
               )}
             </div>
           </div>
         </>
-      )}
-
-      {!result && (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>
-          <div style={{ fontSize: 40, marginBottom: 10 }}>💳</div>
-          <div>Completá los campos para ver el resultado</div>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.22)' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>💳</div>
+          <div style={{ fontSize: 14 }}>Completá los campos para ver el resultado</div>
         </div>
       )}
     </div>
@@ -139,20 +133,23 @@ export default function CreditSimulator() {
 function ResultKpi({ label, value, color, isPercent }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-      border: `1px solid rgba(255,255,255,0.1)`, borderTop: `2px solid ${color}`,
-      borderRadius: 16, padding: '14px 16px',
+      background: 'rgba(255,255,255,0.05)',
+      backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 16, padding: '15px 16px',
+      boxShadow: `inset 0 0 0 1px ${color}14, inset 0 1px 0 rgba(255,255,255,0.08)`,
     }}>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
-      <div style={{ fontSize: 19, fontWeight: 700, color, letterSpacing: '-0.02em' }}>
+      <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.32)', marginBottom: 8 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 18, fontWeight: 750, letterSpacing: '-0.03em', color, fontVariantNumeric: 'tabular-nums' }}>
         {isPercent ? `${value.toFixed(1)}%` : `$${Math.round(value).toLocaleString('es-AR')}`}
       </div>
     </div>
   )
 }
 
-const lbl = { display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }
 const toggle = {
-  display: 'flex', background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-  border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 3, gap: 3,
+  display: 'flex', background: 'rgba(255,255,255,0.06)',
+  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 3, gap: 3,
 }

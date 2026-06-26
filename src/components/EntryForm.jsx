@@ -180,18 +180,18 @@ function Field({ label, children }) {
 }
 
 const overlay = {
-  position: 'fixed', inset: 0, background: 'rgba(0,0,10,0.65)',
-  backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+  position: 'fixed', inset: 0, background: 'rgba(0,0,10,0.7)',
+  backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
   display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
   padding: '0 12px 24px', zIndex: 100,
 }
 const sheet = {
   width: '100%', maxWidth: 480,
-  background: 'rgba(12,22,50,0.72)', backdropFilter: 'blur(52px) saturate(220%)', WebkitBackdropFilter: 'blur(52px) saturate(220%)',
-  border: '1px solid rgba(255,255,255,0.2)', borderRadius: 28, padding: 28,
-  boxShadow: '0 24px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.22)',
+  background: 'rgba(10,18,40,0.88)', backdropFilter: 'blur(56px) saturate(220%)', WebkitBackdropFilter: 'blur(56px) saturate(220%)',
+  border: '1px solid rgba(255,255,255,0.14)', borderRadius: 28, padding: 28,
+  boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.16)',
   maxHeight: '90vh', overflowY: 'auto',
 }
-const handle = { width: 36, height: 4, background: 'rgba(255,255,255,0.25)', borderRadius: 2, margin: '0 auto 20px' }
-const title  = { fontWeight: 700, fontSize: 20, marginBottom: 22, letterSpacing: '-0.02em' }
-const lbl    = { display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }
+const handle = { width: 36, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 22px' }
+const title  = { fontWeight: 700, fontSize: 19, marginBottom: 22, letterSpacing: '-0.02em' }
+const lbl    = { display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.38)', marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }
