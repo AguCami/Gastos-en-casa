@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { AuthProvider, useUser } from './AuthContext'
 import { useStore } from './useStore'
+import AuthPage from './pages/AuthPage'
+import OnboardingPage from './pages/OnboardingPage'
 import Header from './components/Header'
 import EntryForm from './components/EntryForm'
 import EntryList from './components/EntryList'
@@ -7,41 +10,63 @@ import Summary from './components/Summary'
 import Members from './components/Members'
 import Balances from './components/Balances'
 import Budgets from './components/Budgets'
+import Goals from './components/Goals'
+import Recurring from './components/Recurring'
 
 export default function App() {
+  return (
+    <AuthProvider>
+      <Inner />
+    </AuthProvider>
+  )
+}
+
+function Inner() {
+  const user = useUser()
+
+  if (user === undefined) return <Splash />         // loading auth
+  if (user === null) return <AuthPage />             // not logged in
+
+  return <MainApp />
+}
+
+function MainApp() {
   const [tab, setTab] = useState('Gastos')
-  const [entryType, setEntryType] = useState('expense')  // 'expense' | 'income'
+  const [entryType, setEntryType] = useState('expense')
   const [showForm, setShowForm] = useState(false)
-  const { loading, members, expenses, incomes, entries, budgets, addMember, removeMember, addEntry, removeEntry, editEntry, setBudget, CATEGORIES } = useStore()
+  const store = useStore()
+
+  const {
+    loading, household, members, expenses, incomes, entries, budgets, goals, recurring,
+    addMember, removeMember,
+    addEntry, removeEntry, editEntry,
+    setBudget,
+    addGoal, updateGoal, removeGoal,
+    addRecurring, removeRecurring, toggleRecurring,
+    CATEGORIES,
+  } = store
+
+  if (loading) return <Splash />
+  if (!household) return <OnboardingPage />
 
   const hasMembers = members.length > 0
-
-  if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 48 }}>🏠</div>
-      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15 }}>Cargando...</div>
-    </div>
-  )
-
-  const tabs = ['Gastos', 'Resumen', 'Balances', 'Presupuesto', 'Miembros']
+  const tabs = ['Gastos', 'Resumen', 'Balances', 'Presupuesto', 'Metas', 'Recurrentes', 'Miembros']
 
   return (
-    <div style={{ minHeight: '100vh' }}>
-      <Header tab={tab} setTab={setTab} tabs={tabs} />
+    <div style={{ minHeight: '100vh' }} onClick={() => {}}>
+      <Header tab={tab} setTab={setTab} tabs={tabs} household={household} />
 
       <main style={{ maxWidth: 900, margin: '0 auto', padding: '28px 16px 100px' }}>
 
-        {/* ── Gastos / Ingresos ─────────────────────────────── */}
         {tab === 'Gastos' && (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
               <h2 style={pageTitle}>Movimientos</h2>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                {/* Toggle gastos/ingresos */}
-                <div style={toggle}>
-                  {(['expense', 'income']).map(t => (
+                <div style={toggleStyle}>
+                  {(['expense','income']).map(t => (
                     <button key={t} onClick={() => setEntryType(t)} style={{
-                      padding: '7px 16px', borderRadius: 10, fontSize: 13, fontWeight: entryType === t ? 600 : 400,
+                      padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: entryType === t ? 600 : 400,
                       background: entryType === t ? (t === 'expense' ? 'rgba(255,69,58,0.3)' : 'rgba(52,208,88,0.3)') : 'transparent',
                       color: entryType === t ? (t === 'expense' ? '#ff453a' : '#34d058') : 'rgba(255,255,255,0.45)',
                       border: entryType === t ? `1px solid ${t === 'expense' ? 'rgba(255,69,58,0.4)' : 'rgba(52,208,88,0.4)'}` : '1px solid transparent',
@@ -56,23 +81,12 @@ export default function App() {
                 </button>
               </div>
             </div>
-
-            {!hasMembers ? (
-              <EmptyMembers onGo={() => setTab('Miembros')} />
-            ) : (
-              <EntryList
-                type={entryType}
-                entries={entries}
-                members={members}
-                expenseCats={CATEGORIES}
-                onRemove={removeEntry}
-                onEdit={editEntry}
-              />
+            {!hasMembers ? <EmptyMembers onGo={() => setTab('Miembros')} /> : (
+              <EntryList type={entryType} entries={entries} members={members} expenseCats={CATEGORIES} onRemove={removeEntry} onEdit={editEntry} />
             )}
           </>
         )}
 
-        {/* ── Resumen ──────────────────────────────────────── */}
         {tab === 'Resumen' && (
           <>
             <h2 style={{ ...pageTitle, marginBottom: 20 }}>Resumen</h2>
@@ -80,7 +94,6 @@ export default function App() {
           </>
         )}
 
-        {/* ── Balances ─────────────────────────────────────── */}
         {tab === 'Balances' && (
           <>
             <h2 style={{ ...pageTitle, marginBottom: 20 }}>Balances</h2>
@@ -88,7 +101,6 @@ export default function App() {
           </>
         )}
 
-        {/* ── Presupuesto ──────────────────────────────────── */}
         {tab === 'Presupuesto' && (
           <>
             <h2 style={{ ...pageTitle, marginBottom: 20 }}>Presupuesto mensual</h2>
@@ -96,7 +108,28 @@ export default function App() {
           </>
         )}
 
-        {/* ── Miembros ─────────────────────────────────────── */}
+        {tab === 'Metas' && (
+          <>
+            <h2 style={{ ...pageTitle, marginBottom: 20 }}>Metas de ahorro</h2>
+            <Goals goals={goals} onAdd={addGoal} onUpdate={updateGoal} onRemove={removeGoal} />
+          </>
+        )}
+
+        {tab === 'Recurrentes' && (
+          <>
+            <h2 style={{ ...pageTitle, marginBottom: 20 }}>Movimientos recurrentes</h2>
+            <Recurring
+              recurring={recurring}
+              members={members}
+              categories={CATEGORIES}
+              onAdd={addRecurring}
+              onRemove={removeRecurring}
+              onToggle={toggleRecurring}
+              onAddEntry={addEntry}
+            />
+          </>
+        )}
+
         {tab === 'Miembros' && (
           <>
             <h2 style={{ ...pageTitle, marginBottom: 20 }}>Miembros del hogar</h2>
@@ -118,6 +151,15 @@ export default function App() {
   )
 }
 
+function Splash() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14 }}>
+      <div style={{ fontSize: 52 }}>🏠</div>
+      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15 }}>Cargando...</div>
+    </div>
+  )
+}
+
 function EmptyMembers({ onGo }) {
   return (
     <div style={{
@@ -126,16 +168,14 @@ function EmptyMembers({ onGo }) {
       border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24,
     }}>
       <div style={{ fontSize: 48, marginBottom: 12 }}>🏠</div>
-      <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', marginBottom: 16 }}>
-        Primero agregá a los integrantes del hogar
-      </div>
+      <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', marginBottom: 16 }}>Primero agregá a los integrantes del hogar</div>
       <button className="btn btn-primary" onClick={onGo}>Ir a Miembros</button>
     </div>
   )
 }
 
 const pageTitle = { fontWeight: 700, fontSize: 22, letterSpacing: '-0.03em' }
-const toggle = {
+const toggleStyle = {
   display: 'flex', background: 'rgba(255,255,255,0.07)',
   backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
   border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 3, gap: 2,
