@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EntryForm from './EntryForm'
+import ExportButton from './ExportButton'
 
 const INCOME_CATS = [
   { id: 'sueldo', label: 'Sueldo', emoji: '💼', color: '#34d058' },
@@ -42,7 +43,8 @@ export default function EntryList({ type, entries, members, expenseCats, onRemov
           {cats.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>)}
         </select>
         <input type="month" value={filter.month} onChange={e => setFilter(f => ({ ...f, month: e.target.value }))} style={{ width: 'auto', flex: '1 1 130px' }} />
-        <div style={{ marginLeft: 'auto', fontSize: 13, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+        <ExportButton entries={filtered} categories={[...cats]} />
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', flexShrink: 0 }}>
           {filtered.length} · <strong style={{ color: type === 'income' ? '#34d058' : '#fff' }}>
             {type === 'income' ? '+' : ''}${total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
           </strong>
@@ -84,7 +86,13 @@ export default function EntryList({ type, entries, members, expenseCats, onRemov
                 <div style={{ fontWeight: 700, fontSize: 17, flexShrink: 0, letterSpacing: '-0.02em', color: isIncome ? '#34d058' : '#fff' }}>
                   {isIncome ? '+' : ''}${entry.amount.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </div>
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0, alignItems: 'center' }}>
+                  {entry.receipt_url && (
+                    <a href={entry.receipt_url} target="_blank" rel="noopener noreferrer">
+                      <img src={entry.receipt_url} alt="ticket"
+                        style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }} />
+                    </a>
+                  )}
                   <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: 13, borderRadius: 10 }} onClick={() => setEditing(entry)}>✏️</button>
                   <button className="btn btn-danger" style={{ padding: '6px 10px', fontSize: 13, borderRadius: 10 }} onClick={() => onRemove(entry.id)}>✕</button>
                 </div>
